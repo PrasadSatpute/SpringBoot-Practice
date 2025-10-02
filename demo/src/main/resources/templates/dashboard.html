@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>Dashboard</h1>
+
+  <div th:if = "${user.role}=='Admin'">
+    <p>Admin Nav</p>
+  </div>
+
+  <div th:if = "${user.role}=='NormalUser'">
+    <p>Normal Nav</p>
+  </div>
+
+<div th:replace = "~{common/header::header}"></div>
+<p>Name : <span th:text = ${user.name}></span></p>
+<p>Role : <span th:text = ${user.role}></span></p>
+<div th:replace = "~{common/footer::footer}"></div>
+
+
+<h1>Switch Case </h1>
+
+<div th:switch = "${user.role}">
+  <div th:case = "'Admin'">
+    <p>Admin Nav</p>
+  </div>
+
+  <div th:case = "'NormalUser'">
+    <p>Normal Nav</p>
+  </div>
+</div>
+
+
+</body>
+</html>

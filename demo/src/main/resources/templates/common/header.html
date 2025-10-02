@@ -1,3 +1,11 @@
 <div th:fragment="header">
   <h1>This is HEADER</h1>
+
+  <div th:if = "${user.role}=='Admin'">
+    <p>Admin Nav</p>
+  </div>
+
+  <div th:if = "${user.role}=='NormalUser'">
+    <p>Normal Nav</p>
+  </div>
 </div>
