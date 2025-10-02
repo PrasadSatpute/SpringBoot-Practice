@@ -202,8 +202,16 @@
             background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
         }
 
-        .stat-icon.orange {
-            background: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);
+        .stat-icon.purple {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .stat-icon.teal {
+            background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
+        }
+
+        .stat-icon.red {
+            background: linear-gradient(135deg, #f2709c 0%, #ff9472 100%);
         }
 
         .stat-info {
@@ -304,9 +312,13 @@
             <i class="fas fa-home"></i>
             <span>Dashboard</span>
         </a>
-        <a href="/users" class="menu-item">
+        <a href="/users" class="menu-item" th:if="${currentUser.role.name() == 'ADMIN'}">
             <i class="fas fa-users"></i>
             <span>Users</span>
+        </a>
+        <a href="/projects" class="menu-item">
+            <i class="fas fa-project-diagram"></i>
+            <span>Projects</span>
         </a>
         <a href="#" class="menu-item">
             <i class="fas fa-user-friends"></i>
@@ -358,8 +370,38 @@
                     <i class="fas fa-project-diagram"></i>
                 </div>
                 <div class="stat-info">
-                    <div class="stat-label">Projects</div>
-                    <div class="stat-value">0</div>
+                    <div class="stat-label">Total Projects</div>
+                    <div class="stat-value" th:text="${totalProjects}">0</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon purple">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-label">Active Projects</div>
+                    <div class="stat-value" th:text="${activeProjects}">0</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon teal">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-label">Completed</div>
+                    <div class="stat-value" th:text="${completedProjects}">0</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon red">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-label">Overdue</div>
+                    <div class="stat-value" th:text="${overdueProjects}">0</div>
                 </div>
             </div>
         </div>
@@ -370,17 +412,22 @@
                 Quick Actions
             </h2>
             <div class="action-grid">
-                <a href="/users/create" class="action-btn">
+                <a href="/users/create" class="action-btn" th:if="${currentUser.role.name() == 'ADMIN'}">
                     <i class="fas fa-user-plus"></i>
                     <span>Create User</span>
                 </a>
-                <a href="/users" class="action-btn">
+                <a href="/users" class="action-btn" th:if="${currentUser.role.name() == 'ADMIN'}">
                     <i class="fas fa-list"></i>
                     <span>View All Users</span>
                 </a>
-                <a href="#" class="action-btn">
+                <a href="/projects/create" class="action-btn"
+                   th:if="${currentUser.role.name() == 'ADMIN' || currentUser.role.name() == 'CEO' || currentUser.role.name() == 'MANAGER'}">
                     <i class="fas fa-plus-circle"></i>
                     <span>New Project</span>
+                </a>
+                <a href="/projects" class="action-btn">
+                    <i class="fas fa-briefcase"></i>
+                    <span>View Projects</span>
                 </a>
                 <a href="#" class="action-btn">
                     <i class="fas fa-chart-line"></i>

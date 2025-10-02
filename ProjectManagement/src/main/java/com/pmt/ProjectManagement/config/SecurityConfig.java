@@ -1,7 +1,6 @@
 package com.pmt.ProjectManagement.config;
 
 import com.pmt.ProjectManagement.security.CustomUserDetailsService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -48,6 +47,9 @@ public class SecurityConfig {
                         .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/login").permitAll()
                         .requestMatchers("/users/**").hasRole("ADMIN")
+                        .requestMatchers("/projects/create", "/projects/edit/**", "/projects/delete/**")
+                        .hasAnyRole("ADMIN", "CEO", "MANAGER")
+                        .requestMatchers("/projects/**").authenticated()
                         .requestMatchers("/dashboard").authenticated()
                         .anyRequest().authenticated()
                 )
