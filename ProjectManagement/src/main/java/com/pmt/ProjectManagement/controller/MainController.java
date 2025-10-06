@@ -25,6 +25,11 @@ public class MainController {
         return "login";
     }
 
+    @GetMapping("/forgot")
+    public String forgot() {
+        return "forgot";
+    }
+
     @GetMapping({"/", "/dashboard"})
     public String dashboard(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
         model.addAttribute("currentUser", userDetails.getUser());

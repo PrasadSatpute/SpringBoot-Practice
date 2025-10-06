@@ -96,6 +96,37 @@ public class UserController {
         return "users/edit";
     }
 
+    @GetMapping("/view/{id}")
+    public String viewUser(@PathVariable Long id,
+                           @AuthenticationPrincipal CustomUserDetails userDetails,
+                           Model model,
+                           RedirectAttributes redirectAttributes) {
+        try {
+            User user = userService.getUserById(id)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            UserDTO userDTO = new UserDTO();
+            userDTO.setId(user.getId());
+            userDTO.setFirstName(user.getFirstName());
+            userDTO.setLastName(user.getLastName());
+            userDTO.setEmail(user.getEmail());
+            userDTO.setPhoneNumber(user.getPhoneNumber());
+            userDTO.setGender(user.getGender());
+            userDTO.setBirthday(user.getBirthday());
+            userDTO.setRole(user.getRole());
+            userDTO.setActive(user.getActive());
+
+            model.addAttribute("userDTO", userDTO);
+            model.addAttribute("currentUser", userDetails.getUser());
+
+            return "users/view"; // returns users/view.html
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "User not found or could not be loaded.");
+            return "redirect:/users";
+        }
+    }
+
+
     @PostMapping("/edit/{id}")
     public String updateUser(@PathVariable Long id,
                              @Valid @ModelAttribute UserDTO userDTO,
@@ -104,6 +135,7 @@ public class UserController {
                              Model model,
                              RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
+            System.out.println("Exception 1 = "+result);
             model.addAttribute("roles", Role.values());
             model.addAttribute("genders", Gender.values());
             model.addAttribute("currentUser", userDetails.getUser());
@@ -115,6 +147,7 @@ public class UserController {
             redirectAttributes.addFlashAttribute("successMessage", "User updated successfully!");
             return "redirect:/users";
         } catch (Exception e) {
+            System.out.println("Exception 2 = "+e);
             model.addAttribute("errorMessage", e.getMessage());
             model.addAttribute("roles", Role.values());
             model.addAttribute("genders", Gender.values());

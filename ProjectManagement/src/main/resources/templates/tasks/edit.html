@@ -1,0 +1,64 @@
+<!-- templates/tasks/edit.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Edit Task</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h1>Edit Task</h1>
+
+<div th:if="${errorMessage}" style="color:red;" th:text="${errorMessage}"></div>
+
+<form th:action="@{/tasks/{id}(id=${projectTaskDTO.id})}" method="post" th:object="${projectTaskDTO}">
+    <label>Task Name:</label>
+    <input type="text" th:field="*{taskName}"/>
+    <div th:if="${#fields.hasErrors('taskName')}" th:errors="*{taskName}"></div>
+
+    <br/>
+
+    <label>Description:</label>
+    <textarea th:field="*{description}"></textarea>
+    <div th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+
+    <br/>
+
+    <label>Project ID:</label>
+    <input type="number" th:field="*{projectId}"/>
+    <div th:if="${#fields.hasErrors('projectId')}" th:errors="*{projectId}"></div>
+
+    <br/>
+
+    <label>Assigned User ID:</label>
+    <input type="number" th:field="*{assignedUserId}"/>
+
+    <br/>
+
+    <label>Start Date:</label>
+    <input type="date" th:field="*{startDate}"/>
+    <div th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}"></div>
+
+    <br/>
+
+    <label>Due Date:</label>
+    <input type="date" th:field="*{dueDate}"/>
+    <div th:if="${#fields.hasErrors('dueDate')}" th:errors="*{dueDate}"></div>
+
+    <br/>
+
+    <label>Completion Percentage:</label>
+    <input type="number" min="0" max="100" th:field="*{completionPercentage}"/>
+    <div th:if="${#fields.hasErrors('completionPercentage')}" th:errors="*{completionPercentage}"></div>
+
+    <br/>
+
+    <label>Created By User ID:</label>
+    <input type="number" th:field="*{createdById}" disabled/>
+
+    <br/><br/>
+
+    <button type="submit">Update Task</button>
+    <a th:href="@{/tasks}">Cancel</a>
+</form>
+</body>
+</html>

@@ -2,12 +2,15 @@ package com.pmt.ProjectManagement.controller;
 
 import com.pmt.ProjectManagement.dto.ProjectDTO;
 import com.pmt.ProjectManagement.entity.Project;
+import com.pmt.ProjectManagement.entity.Task;
 import com.pmt.ProjectManagement.entity.User;
 import com.pmt.ProjectManagement.enums.ProjectPriority;
 import com.pmt.ProjectManagement.enums.ProjectStatus;
 import com.pmt.ProjectManagement.enums.Role;
+import com.pmt.ProjectManagement.enums.TaskStatus;
 import com.pmt.ProjectManagement.security.CustomUserDetails;
 import com.pmt.ProjectManagement.service.ProjectService;
+import com.pmt.ProjectManagement.service.TaskService;
 import com.pmt.ProjectManagement.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,10 +29,12 @@ public class ProjectController {
 
     private final ProjectService projectService;
     private final UserService userService;
+    private final TaskService taskService;
 
-    public ProjectController(ProjectService projectService, UserService userService) {
+    public ProjectController(ProjectService projectService, UserService userService, TaskService taskService) {
         this.projectService = projectService;
         this.userService = userService;
+        this.taskService = taskService;
     }
 
     @GetMapping
@@ -44,11 +49,14 @@ public class ProjectController {
             projects = projectService.getAllProjects();
         } else {
             // Show only assigned projects to other users
+            System.out.println("List of Project By Assign User-------------------");
             projects = projectService.getProjectsByAssignedUser(currentUser);
         }
 
         model.addAttribute("projects", projects);
         model.addAttribute("currentUser", currentUser);
+
+        System.out.println("List of All Project -------------------");
         return "projects/list";
     }
 
@@ -139,6 +147,12 @@ public class ProjectController {
                               RedirectAttributes redirectAttributes) {
         Project project = projectService.getProjectByIdWithUsers(id)
                 .orElseThrow(() -> new RuntimeException("Project not found"));
+
+        List<Task> tasks = taskService.getTasksByProject(project);
+        long todoTasks = taskService.countTasksByProjectAndStatus(project, TaskStatus.TODO);
+        long inProgressTasks = taskService.countTasksByProjectAndStatus(project, TaskStatus.IN_PROGRESS);
+        long completedTasks = taskService.countTasksByProjectAndStatus(project, TaskStatus.COMPLETED);
+
 
         model.addAttribute("project", project);
         model.addAttribute("currentUser", userDetails.getUser());

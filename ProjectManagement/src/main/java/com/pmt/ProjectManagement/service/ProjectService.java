@@ -107,7 +107,6 @@ public class ProjectService {
                 project.getAssignedUsers().add(user);
             }
         }
-
         return projectRepository.save(project);
     }
 

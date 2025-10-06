@@ -240,6 +240,7 @@
 
         tbody tr:hover {
             background: #f8f9fa;
+            cursor: pointer;
         }
 
         .badge {
@@ -363,6 +364,10 @@
             <i class="fas fa-users"></i>
             <span>Users</span>
         </a>
+        <a href="/projects" class="menu-item">
+            <i class="fas fa-project-diagram"></i>
+            <span>Projects</span>
+        </a>
         <a href="#" class="menu-item">
             <i class="fas fa-user-friends"></i>
             <span>Teams</span>
@@ -416,7 +421,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="user : ${users}">
+                <tr th:each="user : ${users}" th:onclick="'window.location.href=\'/users/view/' + ${user.id} + '\''">
                     <td>
                         <strong th:text="${user.fullName}">John Doe</strong>
                     </td>
@@ -443,6 +448,9 @@
                     </td>
                     <td>
                         <div class="action-buttons">
+<!--                            <a th:href="@{/users/view/{id}(id=${user.id})}" class="btn btn-sm btn-outline-primary">-->
+<!--                                <i class="fas fa-eye"></i> View-->
+<!--                            </a>-->
                             <a th:href="@{/users/edit/{id}(id=${user.id})}" class="btn-edit">
                                 <i class="fas fa-edit"></i> Edit
                             </a>

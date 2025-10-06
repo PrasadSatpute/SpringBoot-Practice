@@ -542,7 +542,7 @@
 
                         <div class="info-item">
                             <span class="info-label">Budget</span>
-                            <span class="info-value" th:text="${project.budget != null ? ' + #numbers.formatDecimal(project.budget, 0, 'COMMA', 2, 'POINT') : 'N/A'}">$50,000</span>
+                            <span class="info-value" th:text="${project.budget != null ? '$' + #numbers.formatDecimal(project.budget, 0, 'COMMA', 2, 'POINT') : 'N/A'}"></span>
                         </div>
                     </div>
 
