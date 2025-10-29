@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Spring Security</title>
+  <style>
+    /* RESET AND BASE STYLES */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    }
+
+    /* LOGIN CONTAINER */
+    .login-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        padding: 40px;
+        width: 100%;
+        max-width: 400px;
+    }
+
+    /* HEADER */
+    .login-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .login-header h1 {
+        color: #333;
+        font-size: 28px;
+        margin-bottom: 10px;
+    }
+
+    .login-header p {
+        color: #666;
+        font-size: 14px;
+    }
+
+    /* ALERT MESSAGES */
+    .alert {
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .alert-error {
+        background-color: #fee;
+        color: #c33;
+        border: 1px solid #fcc;
+    }
+
+    .alert-success {
+        background-color: #efe;
+        color: #3c3;
+        border: 1px solid #cfc;
+    }
+
+    /* FORM STYLES */
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        color: #333;
+        font-weight: 500;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+
+    /* BUTTON */
+    .btn-login {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-login:active {
+        transform: translateY(0);
+    }
+
+    /* FOOTER INFO */
+    .login-footer {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #e0e0e0;
+        text-align: center;
+    }
+
+    .login-footer h3 {
+        color: #333;
+        font-size: 16px;
+        margin-bottom: 15px;
+    }
+
+    .credentials {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 6px;
+        text-align: left;
+    }
+
+    .credentials p {
+        color: #555;
+        font-size: 13px;
+        margin: 8px 0;
+    }
+
+    .credentials strong {
+        color: #667eea;
+    }
+  </style>
+</head>
+<body>
+<!--
+LOGIN PAGE - SPRING SECURITY FLOW
+==================================
+
+WHAT HAPPENS WHEN USER SUBMITS THIS FORM:
+
+STEP 1: User enters username and password
+STEP 2: User clicks "Login" button
+STEP 3: Form submits POST request to /login
+STEP 4: UsernamePasswordAuthenticationFilter intercepts the request
+STEP 5: Filter extracts username and password from form
+STEP 6: Creates UsernamePasswordAuthenticationToken
+STEP 7: Passes token to AuthenticationManager
+STEP 8: AuthenticationManager uses DaoAuthenticationProvider
+STEP 9: DaoAuthenticationProvider calls CustomUserDetailsService
+STEP 10: CustomUserDetailsService loads user from database
+STEP 11: Returns UserDetails with encrypted password and roles
+STEP 12: DaoAuthenticationProvider verifies password using BCrypt
+STEP 13: If valid:
+         - Authentication object is created
+         - SecurityContext is populated
+         - Session is created
+         - User redirected to /dashboard
+STEP 14: If invalid:
+         - BadCredentialsException is thrown
+         - User redirected to /login?error=true
+         - Error message is displayed
+
+FORM FIELD NAMES:
+- username: Must match usernameParameter("username") in SecurityConfig
+- password: Must match passwordParameter("password") in SecurityConfig
+- _csrf: CSRF token (automatically added by Spring Security)
+-->
+
+<div class="login-container">
+  <!-- HEADER -->
+  <div class="login-header">
+    <h1>🔐 Spring Security Login</h1>
+    <p>Enter your credentials to continue</p>
+  </div>
+
+  <!-- ERROR MESSAGE - Shown when login fails -->
+  <div th:if="${error}" class="alert alert-error">
+    ❌ <span th:text="${error}">Invalid username or password!</span>
+  </div>
+
+  <!-- SUCCESS MESSAGE - Shown after logout -->
+  <div th:if="${message}" class="alert alert-success">
+    ✓ <span th:text="${message}">You have been logged out successfully.</span>
+  </div>
+
+  <!-- LOGIN FORM -->
+  <!--
+  IMPORTANT FORM ATTRIBUTES:
+  - th:action="@{/login}": Posts to /login (handled by Spring Security)
+  - method="post": Must be POST for security
+  - Spring Security automatically adds CSRF token
+  -->
+  <form th:action="@{/login}" method="post">
+    <!-- USERNAME FIELD -->
+    <div class="form-group">
+      <label for="username">Username</label>
+      <input
+              type="text"
+              id="username"
+              name="username"
+              placeholder="Enter username"
+              required
+              autofocus>
+    </div>
+
+    <!-- PASSWORD FIELD -->
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Enter password"
+              required>
+    </div>
+
+    <!-- SUBMIT BUTTON -->
+    <button type="submit" class="btn-login">
+      Login
+    </button>
+  </form>
+
+  <!-- TEST CREDENTIALS INFO -->
+  <div class="login-footer">
+    <h3>Test Credentials</h3>
+    <div class="credentials">
+      <p><strong>Admin Account:</strong></p>
+      <p>Username: <strong>admin</strong></p>
+      <p>Password: <strong>admin123</strong></p>
+      <p>Access: <strong>Full (Create, Read, Update, Delete)</strong></p>
+
+      <p style="margin-top: 15px;"><strong>User Account:</strong></p>
+      <p>Username: <strong>user</strong></p>
+      <p>Password: <strong>user123</strong></p>
+      <p>Access: <strong>Read Only</strong></p>
+    </div>
+  </div>
+</div>
+</body>
+</html>

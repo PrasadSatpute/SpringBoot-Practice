@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Access Denied - 403</title>
+  <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    }
+
+    .error-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        padding: 50px;
+        text-align: center;
+        max-width: 500px;
+    }
+
+    .error-icon {
+        font-size: 80px;
+        margin-bottom: 20px;
+    }
+
+    h1 {
+        color: #dc3545;
+        font-size: 36px;
+        margin-bottom: 10px;
+    }
+
+    h2 {
+        color: #333;
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    p {
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 30px;
+    }
+
+    .btn-home {
+        display: inline-block;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 12px 30px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: transform 0.2s;
+    }
+
+    .btn-home:hover {
+        transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+<!--
+403 ACCESS DENIED PAGE
+======================
+
+WHEN THIS PAGE IS SHOWN:
+- User is authenticated (logged in)
+- But doesn't have required role/permission
+- Example: USER role trying to access ADMIN-only endpoint
+
+SPRING SECURITY FLOW TO THIS PAGE:
+1. User requests protected resource (e.g., /api/users)
+2. User is authenticated (session exists)
+3. AuthorizationFilter checks required permissions
+4. User doesn't have ROLE_ADMIN
+5. AccessDeniedException is thrown
+6. ExceptionTranslationFilter handles exception
+7. Redirects to /error/403 (configured in SecurityConfig)
+8. This page is displayed
+-->
+
+<div class="error-container">
+  <div class="error-icon">🔒</div>
+  <h1>403</h1>
+  <h2>Access Denied</h2>
+  <p th:if="${message}" th:text="${message}">
+    You don't have permission to access this resource.
+  </p>
+  <p th:unless="${message}">
+    You don't have sufficient permissions to access this page.<br>
+    Please contact your administrator if you believe this is an error.
+  </p>
+  <a href="/dashboard" class="btn-home">Go to Dashboard</a>
+</div>
+</body>
+</html>
