@@ -21,6 +21,7 @@ public class VisitorCountController {
     @PostMapping(value = "/increment", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<VisitorCountDTO> incrementVisitorCount() {
         VisitorCountDTO result = visitorCountService.incrementVisitorCount();
+        System.out.println("Count");
         return ResponseEntity.ok(result);
     }
 
