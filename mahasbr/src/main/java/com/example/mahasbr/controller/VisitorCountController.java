@@ -20,13 +20,14 @@ public class VisitorCountController {
     @PostMapping(value = "/increment", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<VisitorCountDTO> incrementVisitorCount() {
         VisitorCountDTO result = visitorCountService.incrementVisitorCount();
-        System.out.println("Count");
+        System.out.println("Increment Call");
         return ResponseEntity.ok(result);
     }
 
     @GetMapping(value = "/count", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<VisitorCountDTO> getVisitorCount() {
         VisitorCountDTO result = visitorCountService.getVisitorCount();
+        System.out.println("Get Count Call");
         return ResponseEntity.ok(result);
     }
 }
