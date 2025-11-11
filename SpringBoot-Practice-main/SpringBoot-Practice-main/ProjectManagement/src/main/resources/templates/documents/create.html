@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Create Document</title>
+</head>
+<body>
+<h1>Create New Document</h1>
+
+<!-- Error message -->
+<div th:if="${errorMessage}" style="color:red;">
+    <p th:text="${errorMessage}"></p>
+</div>
+
+<!-- Success message -->
+<div th:if="${successMessage}" style="color:green;">
+    <p th:text="${successMessage}"></p>
+</div>
+
+<form th:action="@{/documents/create}" th:object="${documentDTO}" method="post" enctype="multipart/form-data">
+    <div>
+        <label for="fileName">File Name:</label>
+        <input type="text" th:field="*{fileName}" id="fileName" required />
+        <div th:if="${#fields.hasErrors('fileName')}" style="color:red;" th:errors="*{fileName}"></div>
+    </div>
+    <div>
+        <label for="fileType">File Type:</label>
+        <input type="text" th:field="*{fileType}" id="fileType" required />
+        <div th:if="${#fields.hasErrors('fileType')}" style="color:red;" th:errors="*{fileType}"></div>
+    </div>
+    <div>
+        <label for="file">Select File:</label>
+        <input type="file" th:field="*{file}" id="file" required />
+        <div th:if="${#fields.hasErrors('file')}" style="color:red;" th:errors="*{file}"></div>
+    </div>
+
+    <button type="submit">Create</button>
+</form>
+
+<a href="/documents">Back to list</a>
+
+</body>
+</html>

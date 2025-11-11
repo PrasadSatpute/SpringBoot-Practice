@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Documents List</title>
+    <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<h1>Documents List</h1>
+
+<div th:if="${successMessage}" style="color:green;">
+    <p th:text="${successMessage}"></p>
+</div>
+<div th:if="${errorMessage}" style="color:red;">
+    <p th:text="${errorMessage}"></p>
+</div>
+
+<a href="/documents/create">Create New Document</a>
+
+<table border="1" cellpadding="8" cellspacing="0">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>File Name</th>
+        <th>File Type</th>
+        <th>Uploaded At</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="doc : ${documents}">
+        <td th:text="${doc.id}"></td>
+        <td th:text="${doc.fileName}"></td>
+        <td th:text="${doc.fileType}"></td>
+        <td th:text="${#dates.format(doc.uploadedAt, 'yyyy-MM-dd HH:mm')}"></td>
+        <td>
+            <a th:href="@{/documents/view/{id}(id=${doc.id})}">View</a> |
+            <a th:href="@{/documents/edit/{id}(id=${doc.id})}">Edit</a> |
+            <form th:action="@{/documents/delete/{id}(id=${doc.id})}" method="post" style="display:inline;">
+                <button type="submit" onclick="return confirm('Are you sure you want to delete this document?');">Delete</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

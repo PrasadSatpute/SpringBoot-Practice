@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Students List</title>
+</head>
+<body>
+
+<h1>Student List</h1>
+<table>
+  <thead>
+  <tr>
+    <th>ID</th>
+    <th>Name</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="student:${listStudents}">
+    <td th:text="${student.id}"></td>
+    <td th:text="${student.name}"></td>
+  </tr>
+  </tbody>
+</table>
+
+<h1>Student List using Selection Expression</h1>
+<table border="1">
+  <thead>
+  <tr>
+      <th>Index</th>
+      <th>ID</th>
+      <th>Name</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="student,studentStat : ${listStudents}" th:object="${student}">
+      <td th:text="${studentStat.count}"></td>
+      <td th:text="*{id}"></td>
+      <td th:text="*{name}"></td>
+  </tr>
+  </tbody>
+</table>
+
+
+<h1>Message Expression</h1>
+<p th:text = #{app.name}></p>
+
+</body>
+</html>

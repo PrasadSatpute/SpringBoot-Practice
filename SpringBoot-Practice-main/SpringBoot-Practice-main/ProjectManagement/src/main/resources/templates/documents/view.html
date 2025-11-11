@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>View Document</title>
+</head>
+<body>
+<h1>Document Details</h1>
+
+<div>
+    <strong>ID:</strong> <span th:text="${document.id}"></span><br/>
+    <strong>File Name:</strong> <span th:text="${document.fileName}"></span><br/>
+    <strong>File Type:</strong> <span th:text="${document.fileType}"></span><br/>
+    <strong>Uploaded At:</strong> <span th:text="${#dates.format(document.uploadedAt, 'yyyy-MM-dd HH:mm')}"></span><br/>
+    <strong>Uploaded By:</strong> <span th:text="${document.user.username}"></span><br/>
+</div>
+
+<div>
+    <a th:href="@{/documents}">Back to List</a>
+</div>
+
+<!--
+  You can implement a separate controller method to serve file downloads.
+  Example:
+  <a th:href="@{/documents/download/{id}(id=${document.id})}">Download File</a>
+-->
+
+</body>
+</html>

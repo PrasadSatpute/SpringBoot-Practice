@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Certificate</title>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            background: #f9f9f9;
+            padding: 40px;
+        }
+        .certificate {
+            border: 10px solid #2c3e50;
+            padding: 40px 30px;
+            background: white;
+            text-align: center;
+            border-radius: 10px;
+            width: 80%;
+            margin: 0 auto;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+        .certificate img {
+            width: 100px;
+            margin-bottom: 20px;
+        }
+        h1 { color: #2c3e50; margin-bottom: 10px; }
+        h2 { color: #34495e; }
+        .details { margin-top: 30px; font-size: 18px; }
+        button {
+            margin-top: 30px;
+            padding: 12px 24px;
+            font-size: 16px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #1e8449;
+        }
+    </style>
+</head>
+<body>
+<div class="certificate" id="certificate">
+    <!-- Company Logo -->
+    <img id="companyLogo" src="https://upload.wikimedia.org/wikipedia/commons/a/ab/Logo_TV_2015.png" alt="Company Logo">
+
+    <h1>Certificate of Participation</h1>
+    <p>This certifies that</p>
+
+    <h2 th:text="${user.name}"></h2>
+
+    <p>has successfully submitted their details as part of our company program.</p>
+
+    <div class="details">
+        <p><strong>Age:</strong> <span th:text="${user.age}"></span></p>
+        <p><strong>Gender:</strong> <span th:text="${user.gender}"></span></p>
+        <p><strong>Contact No:</strong> <span th:text="${user.contactNo}"></span></p>
+    </div>
+
+    <br><br>
+    <p><em>Issued by</em></p>
+    <h3>Private Company Ltd.</h3>
+
+    <button onclick="downloadPDF()">⬇️ Download Certificate</button>
+</div>
+
+<!-- html2pdf.js CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<script>
+    function downloadPDF() {
+        const element = document.getElementById('certificate');
+        const logo = document.getElementById('companyLogo');
+
+        // Wait for the image to fully load
+        if (!logo.complete) {
+            logo.onload = () => generatePDF(element);
+        } else {
+            generatePDF(element);
+        }
+    }
+
+    function generatePDF(element) {
+        const opt = {
+            margin: 0.2,
+            filename: 'Certificate.pdf',
+            image: { type: 'jpeg', quality: 1 },
+            html2canvas: {
+                scale: 3, // higher scale = sharper PDF
+                useCORS: true, // allow loading external images
+                logging: false,
+                windowWidth: element.scrollWidth,
+                windowHeight: element.scrollHeight
+            },
+            jsPDF: {
+                unit: 'px',
+                format: 'a4',
+                orientation: 'portrait'
+            }
+        };
+
+        // Give a small delay to ensure layout fully rendered
+        setTimeout(() => {
+            html2pdf().set(opt).from(element).save();
+        }, 300);
+    }
+</script>
+</body>
+</html>

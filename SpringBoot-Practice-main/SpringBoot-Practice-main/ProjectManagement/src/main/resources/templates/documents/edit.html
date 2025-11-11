@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Edit Document</title>
+</head>
+<body>
+<h1>Edit Document</h1>
+
+<div th:if="${errorMessage}" style="color:red;">
+    <p th:text="${errorMessage}"></p>
+</div>
+
+<form th:action="@{/documents/edit/{id}(id=${documentDTO.id})}" th:object="${documentDTO}" method="post" enctype="multipart/form-data">
+    <div>
+        <label for="fileName">File Name:</label>
+        <input type="text" th:field="*{fileName}" id="fileName" required />
+        <div th:if="${#fields.hasErrors('fileName')}" style="color:red;" th:errors="*{fileName}">File name error</div>
+    </div>
+    <div>
+        <label for="fileType">File Type:</label>
+        <input type="text" th:field="*{fileType}" id="fileType" required />
+        <div th:if="${#fields.hasErrors('fileType')}" style="color:red;" th:errors="*{fileType}">File type error</div>
+    </div>
+    <div>
+        <label for="file">Replace File (optional):</label>
+        <input type="file" id="file" name="file" />
+    </div>
+
+    <button type="submit">Update</button>
+</form>
+
+<a href="/documents">Back to list</a>
+
+</body>
+</html>

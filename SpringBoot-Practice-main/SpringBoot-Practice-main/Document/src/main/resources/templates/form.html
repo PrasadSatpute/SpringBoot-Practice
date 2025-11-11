@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>User Details Form</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f8f9fa; margin: 0; padding: 0; }
+        .container { width: 400px; margin: 60px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; }
+        input, select { width: 100%; padding: 8px; margin: 8px 0; border-radius: 4px; border: 1px solid #ccc; }
+        button { width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Enter Your Details</h2>
+    <form th:action="@{/certificate}" th:object="${user}" method="post">
+        <label>Name:</label>
+        <input type="text" th:field="*{name}" required>
+
+        <label>Age:</label>
+        <input type="number" th:field="*{age}" required>
+
+        <label>Gender:</label>
+        <select th:field="*{gender}">
+            <option value="">Select</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+        </select>
+
+        <label>Contact No:</label>
+        <input type="text" th:field="*{contactNo}" required>
+
+        <button type="submit">Generate Certificate</button>
+    </form>
+</div>
+</body>
+</html>
