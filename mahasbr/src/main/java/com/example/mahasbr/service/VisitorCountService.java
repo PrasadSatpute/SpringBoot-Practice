@@ -4,7 +4,6 @@ import com.example.mahasbr.dto.VisitorCountDTO;
 import com.example.mahasbr.entity.VisitorCount;
 import com.example.mahasbr.repository.VisitorCountRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 
@@ -17,61 +16,34 @@ public class VisitorCountService {
         this.visitorCountRepository = visitorCountRepository;
     }
 
-    @Transactional(isolation = Isolation.SERIALIZABLE)
+    @Transactional
     public VisitorCountDTO incrementVisitorCount() {
         LocalDate today = LocalDate.now();
-        int maxRetries = 3;
-        int retryCount = 0;
 
-        while (retryCount < maxRetries) {
-            try {
-                // Try to find today's record with pessimistic write lock
-                VisitorCount visitorCount = visitorCountRepository
-                        .findByDateWithLock(today)
-                        .orElseGet(() -> createNewDayRecord(today));
+        // Try to find today's record
+        VisitorCount visitorCount = visitorCountRepository.findByDate(today)
+                .orElseGet(() -> {
+                    // If today's record doesn't exist, create new one
+                    VisitorCount newCount = new VisitorCount();
+                    newCount.setDate(today);
+                    newCount.setTodayCount(0L);
 
-                // Increment counts
-                visitorCount.setTodayCount(visitorCount.getTodayCount() + 1);
-                visitorCount.setTotalCount(visitorCount.getTotalCount() + 1);
+                    // Get the last total count from previous day
+                    Long lastTotalCount = visitorCountRepository.findTopByOrderByDateDesc()
+                            .map(VisitorCount::getTotalCount)
+                            .orElse(0L);
 
-                // Save and return
-                VisitorCount saved = visitorCountRepository.save(visitorCount);
+                    newCount.setTotalCount(lastTotalCount);
+                    return newCount;
+                });
 
-                return convertToDTO(saved);
+        // Increment counts
+        visitorCount.setTodayCount(visitorCount.getTodayCount() + 1);
+        visitorCount.setTotalCount(visitorCount.getTotalCount() + 1);
 
-            } catch (Exception e) {
-                retryCount++;
-
-
-                if (retryCount >= maxRetries) {
-
-                    throw new RuntimeException("Failed to increment visitor count", e);
-                }
-
-                try {
-                    Thread.sleep(100 * retryCount); // Exponential backoff
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    throw new RuntimeException("Thread interrupted during retry", ie);
-                }
-            }
-        }
-
-        throw new RuntimeException("Failed to increment visitor count");
-    }
-
-    private VisitorCount createNewDayRecord(LocalDate today) {
-        VisitorCount newCount = new VisitorCount();
-        newCount.setDate(today);
-        newCount.setTodayCount(0L);
-
-        // Get the last total count from previous day
-        Long lastTotalCount = visitorCountRepository.findTopByOrderByDateDesc()
-                .map(VisitorCount::getTotalCount)
-                .orElse(0L);
-
-        newCount.setTotalCount(lastTotalCount);
-        return visitorCountRepository.save(newCount);
+        // Save and return
+        VisitorCount saved = visitorCountRepository.save(visitorCount);
+        return convertToDTO(saved);
     }
 
     @Transactional(readOnly = true)
