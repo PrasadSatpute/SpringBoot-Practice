@@ -1,0 +1,22 @@
+package gov.property.web;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+
+@SpringBootApplication
+@ComponentScan(basePackages = {
+        "gov.property.web",
+        "gov.property.service",
+        "gov.property.security"
+})
+@EnableJpaRepositories(basePackages = "gov.property.repository")
+@EntityScan(basePackages = "gov.property.model.entity")
+public class PropertyRegistrationApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(PropertyRegistrationApplication.class, args);
+    }
+}
