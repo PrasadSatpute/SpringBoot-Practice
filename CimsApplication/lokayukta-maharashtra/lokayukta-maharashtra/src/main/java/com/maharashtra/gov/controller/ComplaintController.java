@@ -49,7 +49,7 @@ public class ComplaintController {
             redirectAttributes.addFlashAttribute("error", "Error while saving complaint!");
         }
 
-        return "redirect:/complaint/register";
+        return "redirect:/inward/register";
     }
 
 }
