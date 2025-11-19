@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tapal Entry List - CIMS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f6fa;
+        }
+
+        /* ========== HEADER STYLES ========== */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+        }
+
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-info span {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .btn-logout {
+            padding: 8px 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 5px;
+            font-size: 14px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* ========== CONTAINER & SIDEBAR ========== */
+        .container {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        .sidebar {
+            width: 250px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            padding: 15px 30px;
+            color: #333;
+            text-decoration: none;
+            display: block;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: #f5f6fa;
+            border-left-color: #667eea;
+            color: #667eea;
+        }
+
+        /* ========== MAIN CONTENT ========== */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            background: #f5f6fa;
+        }
+
+        .content-wrapper {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .page-header h2 {
+            color: #333;
+            font-size: 28px;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .filter-group select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        /* Stats Cards */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 14px;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .stat-card .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            display: inline-block;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-existing {
+            background: #e7f3ff;
+            color: #1976d2;
+        }
+
+        .badge-new {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .badge-section {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .action-buttons {
+            margin-top: 30px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ========== HEADER ========== -->
+<div class="header">
+    <div>
+        <h1>CIMS Portal - Lokayukta Maharashtra</h1>
+        <p style="font-size: 12px; opacity: 0.9;">Complaint Information Management System</p>
+    </div>
+    <div class="header-info">
+        <div class="user-info">
+            <div sec:authentication="name">Username</div>
+            <span sec:authentication="authorities">Role</span>
+        </div>
+        <form th:action="@{/logout}" method="post" style="display: inline;">
+            <button type="submit" class="btn-logout">Logout</button>
+        </form>
+    </div>
+</div>
+
+<div class="container">
+    <!-- ========== SIDEBAR ========== -->
+    <nav class="sidebar">
+        <a href="/dashboard" class="nav-item">Dashboard</a>
+        <a href="/complaints/fresh" class="nav-item">Fresh Complaint Entry</a>
+        <a href="/tapal/search" class="nav-item">Tapal / Institution Search</a>
+        <a href="/complaints/list" class="nav-item">View All Complaints</a>
+        <a href="/tapal/list" class="nav-item active">View All Tapals</a>
+        <a href="/complaints/search" class="nav-item">Search Complaints</a>
+        <a href="/admin/users" class="nav-item" sec:authorize="hasRole('SYSTEM_ADMIN')">Manage Users</a>
+    </nav>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <main class="main-content">
+        <div class="content-wrapper">
+            <div class="page-header">
+                <h2>📋 All Tapal Entries</h2>
+                <a href="/tapal/search" class="btn btn-success">➕ Add New Tapal Entry</a>
+            </div>
+
+            <!-- Filters -->
+            <div class="filter-section">
+                <form method="get" th:action="@{/tapal/list}">
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label>Filter by Section:</label>
+                            <select name="section" onchange="this.form.submit()">
+                                <option value="">All Sections</option>
+                                <option th:each="section : ${sections}"
+                                        th:value="${section}"
+                                        th:text="${section}"
+                                        th:selected="${param.section != null && param.section[0] == section.name()}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label>Filter by Type:</label>
+                            <select name="tapalType" onchange="this.form.submit()">
+                                <option value="">All Types</option>
+                                <option th:each="type : ${tapalTypes}"
+                                        th:value="${type}"
+                                        th:text="${type}"
+                                        th:selected="${param.tapalType != null && param.tapalType[0] == type.name()}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group" style="justify-content: flex-end; align-items: flex-end;">
+                            <a href="/tapal/list" class="btn" style="background: #6c757d;">Clear Filters</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <h3>Total Entries</h3>
+                    <div class="stat-value" th:text="${#lists.size(tapalEntries)}">0</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <h3>This Month</h3>
+                    <div class="stat-value">-</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <h3>This Year</h3>
+                    <div class="stat-value">-</div>
+                </div>
+            </div>
+
+            <!-- Tapal Entries Table -->
+            <div th:if="${!tapalEntries.empty}">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Complaint No.</th>
+                        <th>Type</th>
+                        <th>Section</th>
+                        <th>Letter Date</th>
+                        <th>Subject</th>
+                        <th>Created By</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="tapal : ${tapalEntries}">
+                        <td>
+                            <strong th:text="${tapal.complaintNumber}"></strong>
+                        </td>
+                        <td>
+                                <span th:if="${tapal.tapalType?.name() == 'EXISTING_COMPLAINT'}"
+                                      class="badge badge-existing">
+                                    Existing
+                                </span>
+                            <span th:if="${tapal.tapalType?.name() == 'NEW_ENTRY'}"
+                                  class="badge badge-new">
+                                    New Entry
+                                </span>
+                        </td>
+                        <td>
+                            <span class="badge badge-section" th:text="${tapal.section}"></span>
+                        </td>
+                        <td th:text="${#temporals.format(tapal.letterReceivedDate, 'dd-MMM-yyyy')}"></td>
+                        <td th:text="${#strings.abbreviate(tapal.subjectLine, 60)}"></td>
+                        <td th:text="${tapal.createdBy?.username ?: 'N/A'}"></td>
+                        <td>
+                            <a th:href="@{/tapal/view/{id}(id=${tapal.id})}" class="btn">View</a>
+                            <a th:if="${tapal.freshComplaint != null}"
+                               th:href="@{/complaints/view/{id}(id=${tapal.freshComplaint.id})}"
+                               class="btn btn-success">
+                                View Complaint
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${tapalEntries.empty}" class="empty-state">
+                <div style="font-size: 64px; margin-bottom: 20px;">🔍</div>
+                <h3>No Tapal Entries Found</h3>
+                <p>No tapal entries match your current filters or no entries have been created yet.</p>
+                <a href="/tapal/search" class="btn btn-success" style="margin-top: 20px;">Create First Tapal Entry</a>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="/tapal/search" class="btn btn-success">➕ Add New Tapal Entry</a>
+                <a href="/dashboard" class="btn" style="background: #6c757d;">🏠 Back to Dashboard</a>
+            </div>
+        </div>
+    </main>
+</div>
+
+</body>
+</html>

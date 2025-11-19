@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fresh Complaint Entry - CIMS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f6fa;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+        }
+
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-info span {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .btn-logout {
+            padding: 8px 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 5px;
+            font-size: 14px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .container {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        .sidebar {
+            width: 250px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            padding: 15px 30px;
+            color: #333;
+            text-decoration: none;
+            display: block;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: #f5f6fa;
+            border-left-color: #667eea;
+            color: #667eea;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            background: #f5f6fa;
+        }
+
+        .content-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .page-header h2 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .page-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .alert-error {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+
+        .alert-success {
+            background: #efe;
+            color: #3c3;
+            border: 1px solid #cfc;
+        }
+
+        .section-header {
+            background: #667eea;
+            color: white;
+            padding: 12px 20px;
+            margin: 30px 0 20px 0;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group label .required {
+            color: red;
+            margin-left: 3px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .error-message {
+            color: #c33;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .form-actions {
+            margin-top: 40px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 14px 40px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .other-input {
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<!-- Header -->
+<div class="header">
+    <div>
+        <h1>CIMS Portal - Lokayukta Maharashtra</h1>
+        <p style="font-size: 12px; opacity: 0.9;">Complaint Information Management System</p>
+    </div>
+    <div class="header-info">
+        <div class="user-info">
+            <div sec:authentication="name">Username</div>
+            <span sec:authentication="authorities">Role</span>
+        </div>
+        <form th:action="@{/logout}" method="post" style="display: inline;">
+            <button type="submit" class="btn-logout">Logout</button>
+        </form>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <a href="/dashboard" class="nav-item">Dashboard</a>
+        <a href="/complaints/fresh" class="nav-item active">Fresh Complaint Entry</a>
+        <a href="/tapal/search" class="nav-item">Tapal / Institution Search</a>
+        <a href="/complaints/list" class="nav-item">View All Complaints</a>
+        <a href="/tapal/list" class="nav-item">View All Tapals</a>
+        <a href="/complaints/search" class="nav-item">Search Complaints</a>
+        <a href="/admin/users" class="nav-item" sec:authorize="hasRole('SYSTEM_ADMIN')">Manage Users</a>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="content-wrapper">
+            <div class="page-header">
+                <h2>Fresh Complaint Entry (Inward Entry)</h2>
+                <p>Register new complaints received by Lokayukta / Up-Lokayukta</p>
+            </div>
+
+            <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+            <form th:action="@{/complaints/fresh}" th:object="${complaintDTO}" method="post">
+
+                <!-- Basic Details -->
+                <div class="section-header">Basic Details</div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Complaint Year <span class="required">*</span></label>
+                        <select th:field="*{complaintYear}" required>
+                            <option value="">Select Year</option>
+                            <option th:each="i : ${#numbers.sequence(currentYear, currentYear - 5)}"
+                                    th:value="${i}" th:text="${i}"></option>
+                        </select>
+                        <span class="error-message" th:errors="*{complaintYear}"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Received Date <span class="required">*</span></label>
+                        <input type="date" th:field="*{receivedDate}" required>
+                        <span class="error-message" th:errors="*{receivedDate}"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Complaint Date <span class="required">*</span></label>
+                        <input type="date" th:field="*{complaintDate}" required>
+                        <span class="error-message" th:errors="*{complaintDate}"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Section <span class="required">*</span></label>
+                        <select th:field="*{section}" required>
+                            <option value="">Select Section</option>
+                            <option value="LOKAYUKTA">Lokayukta</option>
+                            <option value="UP_LOKAYUKTA">Up-Lokayukta</option>
+                        </select>
+                        <span class="error-message" th:errors="*{section}"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Table No. (1-18) <span class="required">*</span></label>
+                        <select th:field="*{tableNo}" required>
+                            <option value="">Select Table No.</option>
+                            <option th:each="num : ${tableNumbers}" th:value="${num}" th:text="${num}"></option>
+                        </select>
+                        <span class="error-message" th:errors="*{tableNo}"></span>
+                    </div>
+                </div>
+
+                <!-- Complainant Details -->
+                <div class="section-header">Complainant Details</div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Surname <span class="required">*</span></label>
+                        <input type="text" th:field="*{complainantSurname}" placeholder="Enter surname" required>
+                        <span class="error-message" th:errors="*{complainantSurname}"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>First Name <span class="required">*</span></label>
+                        <input type="text" th:field="*{complainantFirstName}" placeholder="Enter first name" required>
+                        <span class="error-message" th:errors="*{complainantFirstName}"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Middle Name</label>
+                        <input type="text" th:field="*{complainantMiddleName}" placeholder="Enter middle name">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Mobile Number</label>
+                        <input type="text" th:field="*{complainantMobile}"
+                               placeholder="10 digit mobile number" maxlength="10" pattern="[0-9]{10}">
+                        <span class="error-message" th:errors="*{complainantMobile}"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email ID</label>
+                        <input type="email" th:field="*{complainantEmail}" placeholder="Enter email address">
+                        <span class="error-message" th:errors="*{complainantEmail}"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Address <span class="required">*</span></label>
+                        <textarea th:field="*{complainantAddress}" placeholder="Enter complete address" required></textarea>
+                        <span class="error-message" th:errors="*{complainantAddress}"></span>
+                    </div>
+                </div>
+
+                <!-- Against Party Details -->
+                <div class="section-header">Against Party Details</div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Surname <span class="required">*</span></label>
+                        <input type="text" th:field="*{againstPartySurname}" placeholder="Enter surname" required>
+                        <span class="error-message" th:errors="*{againstPartySurname}"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>First Name <span class="required">*</span></label>
+                        <input type="text" th:field="*{againstPartyFirstName}" placeholder="Enter first name" required>
+                        <span class="error-message" th:errors="*{againstPartyFirstName}"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Middle Name</label>
+                        <input type="text" th:field="*{againstPartyMiddleName}" placeholder="Enter middle name">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Mobile Number</label>
+                        <input type="text" th:field="*{againstPartyMobile}"
+                               placeholder="10 digit mobile number" maxlength="10" pattern="[0-9]{10}">
+                        <span class="error-message" th:errors="*{againstPartyMobile}"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email ID</label>
+                        <input type="email" th:field="*{againstPartyEmail}" placeholder="Enter email address">
+                        <span class="error-message" th:errors="*{againstPartyEmail}"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Address <span class="required">*</span></label>
+                        <textarea th:field="*{againstPartyAddress}" placeholder="Enter complete address" required></textarea>
+                        <span class="error-message" th:errors="*{againstPartyAddress}"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>District <span class="required">*</span></label>
+                        <input type="text" th:field="*{district}" placeholder="Enter district" required>
+                        <span class="error-message" th:errors="*{district}"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Division <span class="required">*</span></label>
+                        <input type="text" th:field="*{division}" placeholder="Enter division" required>
+                        <span class="error-message" th:errors="*{division}"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Designation <span class="required">*</span></label>
+                        <select th:field="*{designation}" id="designationSelect" required>
+                            <option value="">Select Designation</option>
+                            <option value="IAS Officer">IAS Officer</option>
+                            <option value="IPS Officer">IPS Officer</option>
+                            <option value="Municipal Officer">Municipal Officer</option>
+                            <option value="Government Employee">Government Employee</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <input type="text" class="other-input" id="designationOther"
+                               placeholder="Enter designation">
+                        <span class="error-message" th:errors="*{designation}"></span>
+                    </div>
+                </div>
+
+                <!-- Complaint Details -->
+                <div class="section-header">Complaint Details</div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Complaint Category <span class="required">*</span></label>
+                        <select th:field="*{complaintCategory}" id="categorySelect" required>
+                            <option value="">Select Category</option>
+                            <option value="Corruption">Corruption</option>
+                            <option value="Maladministration">Maladministration</option>
+                            <option value="Abuse of Position">Abuse of Position</option>
+                            <option value="Undue Delay">Undue Delay</option>
+                            <option value="Discrimination">Discrimination</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <input type="text" class="other-input" id="categoryOther"
+                               placeholder="Enter category">
+                        <span class="error-message" th:errors="*{complaintCategory}"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Subject <span class="required">*</span></label>
+                        <textarea th:field="*{subject}" placeholder="Enter complaint subject" required></textarea>
+                        <span class="error-message" th:errors="*{subject}"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Remarks</label>
+                        <textarea th:field="*{remarks}" placeholder="Enter any additional remarks"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Submit Complaint</button>
+                    <a href="/dashboard" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+
+<script>
+    // Handle "Other" option for Designation
+    document.getElementById('designationSelect').addEventListener('change', function() {
+        const otherInput = document.getElementById('designationOther');
+        if (this.value === 'Other') {
+            otherInput.style.display = 'block';
+            otherInput.required = true;
+        } else {
+            otherInput.style.display = 'none';
+            otherInput.required = false;
+            otherInput.value = '';
+        }
+    });
+
+    // Handle "Other" option for Category
+    document.getElementById('categorySelect').addEventListener('change', function() {
+        const otherInput = document.getElementById('categoryOther');
+        if (this.value === 'Other') {
+            otherInput.style.display = 'block';
+            otherInput.required = true;
+        } else {
+            otherInput.style.display = 'none';
+            otherInput.required = false;
+            otherInput.value = '';
+        }
+    });
+
+    // Copy "Other" input value to actual field before submission
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const designationSelect = document.getElementById('designationSelect');
+        const designationOther = document.getElementById('designationOther');
+        if (designationSelect.value === 'Other' && designationOther.value) {
+            designationSelect.value = designationOther.value;
+        }
+
+        const categorySelect = document.getElementById('categorySelect');
+        const categoryOther = document.getElementById('categoryOther');
+        if (categorySelect.value === 'Other' && categoryOther.value) {
+            categorySelect.value = categoryOther.value;
+        }
+    });
+</script>
+</body>
+</html>

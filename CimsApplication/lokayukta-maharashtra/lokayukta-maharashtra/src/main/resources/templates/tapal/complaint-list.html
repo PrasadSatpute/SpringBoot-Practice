@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complaint List - CIMS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f6fa;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar h1 {
+            font-size: 22px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .main-content {
+            padding: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .content-wrapper {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .page-header h2 {
+            color: #333;
+            font-size: 28px;
+        }
+
+        .filter-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .filter-group select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            display: inline-block;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-section {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .badge-status-pending {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .badge-status-actioned {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <h1>CIMS Portal - Lokayukta Maharashtra</h1>
+    <div class="nav-links">
+        <a href="/tapal/search">Tapal / Institution Search</a>
+        <a href="/tapal/complaints" class="active">View All Complaints</a>
+        <a href="/tapal/list">View All Tapals</a>
+    </div>
+</nav>
+
+<main class="main-content">
+    <div class="content-wrapper">
+        <div class="page-header">
+            <h2>📋 All Complaints</h2>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-section">
+            <form method="get" th:action="@{/tapal/complaints}">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label>Filter by Year:</label>
+                        <select name="year" onchange="this.form.submit()">
+                            <option value="">All Years</option>
+                            <option th:each="i : ${#numbers.sequence(2025, 2020)}"
+                                    th:value="${i}"
+                                    th:text="${i}"
+                                    th:selected="${param.year != null && param.year[0] == i.toString()}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Filter by Section:</label>
+                        <select name="section" onchange="this.form.submit()">
+                            <option value="">All Sections</option>
+                            <option th:each="section : ${sections}"
+                                    th:value="${section}"
+                                    th:text="${section}"
+                                    th:selected="${param.section != null and param.section[0] == section}">
+                            </option>
+
+                        </select>
+                    </div>
+
+                    <div class="filter-group" style="justify-content: flex-end; align-items: flex-end;">
+                        <a href="/tapal/complaints" class="btn" style="background: #6c757d;">Clear Filters</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Complaints Table -->
+        <div th:if="${!complaints.empty}">
+            <table>
+                <thead>
+                <tr>
+                    <th>Complaint No.</th>
+                    <th>Year</th>
+                    <th>Section</th>
+                    <th>Table No.</th>
+                    <th>Complainant</th>
+                    <th>Subject</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="complaint : ${complaints}">
+                    <td><strong th:text="${complaint.complaintNumber}"></strong></td>
+                    <td th:text="${complaint.complaintYear}"></td>
+                    <td>
+                        <span class="badge badge-section" th:text="${complaint.section}"></span>
+                    </td>
+                    <td th:text="${complaint.tableNo}"></td>
+                    <td th:text="${complaint.complainantFullName}"></td>
+                    <td th:text="${#strings.abbreviate(complaint.subject, 50)}"></td>
+                    <td>
+<!--                        <span th:if="${complaint.status.name() == 'PENDING'}"-->
+<!--                              class="badge badge-status-pending">-->
+<!--                            Pending-->
+<!--                        </span>-->
+<!--                        <span th:if="${complaint.status.name() == 'ACTIONED'}"-->
+<!--                              class="badge badge-status-actioned">-->
+<!--                            Actioned-->
+<!--                        </span>-->
+<!--                        <span th:unless="${complaint.status.name() == 'PENDING' || complaint.status.name() == 'ACTIONED'}"-->
+<!--                              class="badge"-->
+<!--                              th:text="${complaint.status}">-->
+<!--                        </span>-->
+                    </td>
+                    <td>
+                        <a th:href="@{/tapal/complaint/{id}(id=${complaint.id})}" class="btn">View</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Empty State -->
+        <div th:if="${complaints.empty}" class="empty-state">
+            <div style="font-size: 64px; margin-bottom: 20px;">📄</div>
+            <h3>No Complaints Found</h3>
+            <p>No complaints match your current filters or no complaints have been registered yet.</p>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>

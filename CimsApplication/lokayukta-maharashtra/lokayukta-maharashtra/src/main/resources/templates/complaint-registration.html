@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Fresh Complaint</title>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+		  
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <style>
+		.error-field {
+		    border: 2px solid red !important;
+		    background-color: #ffe6e6 !important; /* light red background */
+		}
+		.number-box {
+		    background-color: #0b59d6;
+		    color: white;
+		    padding: 1px 6px;
+		    border-radius: 4px;
+		    font-weight: bold;
+		    margin-right: 8px;
+		}
+
+		.heading-number {
+		    display: flex;
+		    align-items: center;
+		    color: #0b59d6;
+		}
+		.error-text {
+		    color: red;
+		    font-size: 13px;
+		}
+		.required-star {
+		    color: red;
+		    font-weight: bold;
+		    margin-left: 3px;
+		}
+
+    </style>
+
+	<script>
+		
+		$(document).ready(function () {
+			
+			$("#designation").change(function () {
+			        $("#otherDesignationDiv").toggle($(this).val() === "Other");
+			    });
+
+
+		    $("#freshComplaintForm").submit(function (e) {
+
+		        let isValid = true;
+
+		        $(".error-field").removeClass("error-field");
+		        $(".error-text").text("");
+
+		        function showError(id, msg) {
+		            $("#" + id).addClass("error-field");
+		            $("#err_" + id).text(msg);
+		            
+		            isValid = false;
+		        }
+
+		        // Complaint Year
+		        if ($("#complaintYear").val().trim() === "") {
+		            showError("complaintYear", "Please select Complaint Year.");
+		        }
+
+		        // Received Date
+		        if ($("#receivedDate").val().trim() === "") {
+		            showError("receivedDate", "Received Date cannot be empty.");
+		        }
+
+		        // Complaint Date
+		        if ($("#complaintDate").val().trim() === "") {
+		            showError("complaintDate", "Complaint Date is required.");
+		        } else {
+		            let cdate = new Date($("#complaintDate").val());
+		            let today = new Date();
+		            if (cdate > today) {
+		                showError("complaintDate", "Complaint Date cannot be in future.");
+		            }
+		        }
+
+		        // Section
+		        if ($("#sectionName").val().trim() === "") {
+		            showError("sectionName", "Please select Section.");
+		        }
+
+		        // Table No
+		        let tableNo = $("#tableNo").val();
+		        if (tableNo === "" || tableNo < 1 || tableNo > 18) {
+		            showError("tableNo", "Table No must be between 1–18.");
+		        }
+
+		        // Complainant
+		        if ($("#complSurname").val().trim() === "") {
+		            showError("complSurname", "Surname required.");
+		        }
+
+		        if ($("#complFirstName").val().trim() === "") {
+		            showError("complFirstName", "First Name required.");
+		        }
+
+		        if ($("#complAddress").val().trim() === "") {
+		            showError("complAddress", "Address required.");
+		        }
+
+		        // Against Party
+		        if ($("#agSurname").val().trim() === "") {
+		            showError("agSurname", "Surname required.");
+		        }
+
+		        if ($("#agFirstName").val().trim() === "") {
+		            showError("agFirstName", "First Name required.");
+		        }
+
+		        if ($("#agAddress").val().trim() === "") {
+		            showError("agAddress", "Address required.");
+		        }
+
+		        // District
+		        if ($("#district").val().trim() === "") {
+		            showError("district", "Select District.");
+		        }
+
+		        // Division
+		        if ($("#division").val().trim() === "") {
+		            showError("division", "Select Division.");
+		        }
+
+		        // Designation
+		        if ($("#designation").val().trim() === "") {
+		            showError("designation", "Select Designation.");
+		        }
+		        if ($("#designation").val() === "Other" &&
+		            $("#otherDesignation").val().trim() === "") {
+		            showError("otherDesignation", "Enter Other Designation.");
+		        }
+
+		        // Category
+		        if ($("#category").val().trim() === "") {
+		            showError("category", "Select Category.");
+		        }
+
+		        // Subject
+		        if ($("#subject").val().trim() === "") {
+		            showError("subject", "Subject is required.");
+		        }
+
+		        if (!isValid) {
+		            e.preventDefault();
+		        }
+		    });
+		});
+
+	</script>
+
+</head>
+
+<body class="bg-light">
+
+<div class="container mt-4">
+
+    <h3 class="text-center mb-4" style="color:#1f3b8a;">	<b>Lokayukta Complaint Management 
+	System </b></h3>
+
+	<div th:if="${msg}" class="alert alert-success text-center" th:text="${msg}"></div>
+
+	<div th:if="${error}" class="alert alert-danger text-center" th:text="${error}"></div>
+
+    <form th:action="@{/inward/save}" th:object="${complaint}" method="post"
+          class="card p-4 shadow" id="freshComplaintForm">
+
+		  <h4 class="heading-number">
+		      <span class="number-box">1</span>
+		      Fresh Complaint (Inward Entry)
+		  </h4>		  <hr>
+        <!-- ROW 1 -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label>Complaint Year</label><span class="required-star">*</span></label>
+                <input type="text" th:field="*{complaintYear}" class="form-control">
+				<span id="err_complaintYear" class="error-text"></span>
+
+            </div>
+
+            <div class="col-md-6">
+                <label>Received Date</label><span class="required-star">*</span></label>
+                <input type="date" th:field="*{receivedDate}" class="form-control">
+				<span id="err_receivedDate" class="error-text"></span>
+
+            </div>
+        </div>
+
+        <!-- ROW 2 -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label>Complaint Number</label>
+				<input type="text" id="complaintNumber" th:field="*{complaintNumber}"
+				       class="form-control bg-light"  th:value="'33'"  readonly>
+				<span id="err_complaintNumber" class="error-text"></span>
+
+            </div>
+
+            <div class="col-md-6">
+                <label>Complaint Date</label><span class="required-star">*</span></label>
+                <input type="date" th:field="*{complaintDate}" class="form-control">
+				<span id="err_complaintDate" class="error-text"></span>
+
+            </div>
+        </div>
+
+        <!-- ROW 3 -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label>Section</label><span class="required-star">*</span></label>
+                <select th:field="*{sectionName}" class="form-select">
+                    <option value="">Select Section</option>
+					<option value="Lokayukta">Lokayukta</option>
+					<option value="Up-Lokayukta">Up-Lokayukta</option>
+					<span id="err_sectionName" class="error-text"></span>
+
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label>Table No</label><span class="required-star">*</span></label>
+				<select th:field="*{tableNo}" class="form-select">
+				    <option value="">Select Table</option>
+
+				    <option value="Table 1">Table 1</option>
+				    <option value="Table 2">Table 2</option>
+				    <option value="Table 3">Table 3</option>
+				    <option value="Table 4">Table 4</option>
+				    <option value="Table 5">Table 5</option>
+				    <option value="Table 6">Table 6</option>
+				    <option value="Table 7">Table 7</option>
+				    <option value="Table 8">Table 8</option>
+				    <option value="Table 9">Table 9</option>
+				    <option value="Table 10">Table 10</option>
+				    <option value="Table 11">Table 11</option>
+				    <option value="Table 12">Table 12</option>
+				    <option value="Table 13">Table 13</option>
+				    <option value="Table 14">Table 14</option>
+				    <option value="Table 15">Table 15</option>
+				    <option value="Table 16">Table 16</option>
+				    <option value="Table 17">Table 17</option>
+				    <option value="Table 18">Table 18</option>
+
+				</select>
+				<span id="err_tableNo" class="error-text"></span>
+
+            </div>
+        </div>
+
+        <hr>
+
+        <h5 style="color:#0b59d6;">A) Complainant Details</h5>
+
+        <!-- ROW 4 -->
+        <div class="row mb-3">
+            <div class="col-md-6"><input type="text" th:field="*{complSurname}" class="form-control" placeholder="Surname">
+			<span id="err_complSurname" class="error-text"></span>
+
+		</div>
+            <div class="col-md-6"><input type="text" th:field="*{complFirstName}" class="form-control" placeholder="First Name">
+				<span id="err_complFirstName" class="error-text"></span>
+	
+			</div>
+
+		</div>
+
+        <!-- ROW 5 -->
+        <div class="row mb-3">
+            <div class="col-md-6"><input type="text" th:field="*{complMiddleName}" class="form-control" placeholder="Middle Name(Optional)"></div>
+            <div class="col-md-6"><input type="text" th:field="*{complMobile}" class="form-control" placeholder="Mobile(Optional)"></div>
+        </div>
+
+        <!-- ROW 6 -->
+        <div class="row mb-3">
+            <div class="col-md-6"><input type="email" th:field="*{complEmail}" class="form-control" placeholder="Email(Optional)"></div>
+            <div class="col-md-6">
+                <textarea th:field="*{complAddress}" rows="1" class="form-control" placeholder="Address"></textarea>
+				<span id="err_complAddress" class="error-text"></span>
+
+            </div>
+        </div>
+
+        <hr>
+
+        <h5 style="color:#d43c3c;">B) Against Party Details</h5>
+
+        <!-- ROW 7 -->
+        <div class="row mb-3">
+            <div class="col-md-6"><input type="text" th:field="*{agSurname}" class="form-control" placeholder="Surname">
+			<span id="err_agSurname" class="error-text"></span>
+	
+		</div>
+            <div class="col-md-6"><input type="text" th:field="*{agFirstName}" class="form-control" placeholder="First Name">
+			<span id="err_agFirstName" class="error-text"></span>
+		
+		</div>
+        </div>
+
+        <!-- ROW 8 -->
+        <div class="row mb-3">
+            <div class="col-md-6"><input type="text" th:field="*{agMiddleName}" class="form-control" placeholder="Middle Name(Optional)"></div>
+            <div class="col-md-6"><input type="text" th:field="*{agMobile}" class="form-control" placeholder="Mobile(Optional)"></div>
+        </div>
+
+        <!-- ROW 9 -->
+        <div class="row mb-3">
+            <div class="col-md-6"><input type="email" th:field="*{agEmail}" class="form-control" placeholder="Email(Optional)"></div>
+            <div class="col-md-6">
+                <textarea th:field="*{agAddress}" rows="1" class="form-control" placeholder="Address"></textarea>
+				<span id="err_agAddress" class="error-text"></span>
+
+            </div>
+        </div>
+
+        <!-- ROW 10 -->
+        <div class="row mb-3">
+			<div class="col-md-4">
+			    <select th:field="*{district}" class="form-select">
+			        <option value="">Select District</option>
+			        <option th:each="d : ${districtList}"
+			                th:value="${d.districtName}"
+			                th:text="${d.districtName}">
+			        </option>
+			    </select>
+				<span id="err_district" class="error-text"></span>
+
+			</div>
+
+			<div class="col-md-4">
+			    <select th:field="*{division}" class="form-select">
+			        <option value="">Select Division</option>
+					<option th:each="division : ${divisionList}"
+					               th:value="${division.divisionName}"
+					               th:text="${division.divisionName}">
+					</option>	
+			    </select>
+				<span id="err_division" class="error-text"></span>
+
+			</div>
+
+
+			<div class="col-md-4">
+			    <select th:field="*{designation}" class="form-select">
+			        <option value="">Select Designation</option>
+			        <option th:each="des : ${designationList}"
+			                th:value="${des.designationName}"
+			                th:text="${des.designationName}">
+			        </option>
+					<option value="Other">Other</option>
+
+			    </select>
+			</div>
+			<!-- Hidden Textbox for Custom Designation -->
+			<div class="col-md-4 mt-2" id="otherDesignationDiv" style="display:none;">
+			    <input type="text" th:field="*{otherDesignation}"
+			           class="form-control"
+			           placeholder="Enter Designation">
+				<span id="err_designation" class="error-text"></span>
+
+			</div>
+
+        </div>
+
+        <hr>
+
+        <h5>Part 3: Complaint Summary</h5>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <select th:field="*{category}" class="form-select">
+                    <option value="">Select Category</option>
+                    <option value="Corruption">Corruption</option>
+                    <option value="Misconduct">Misconduct</option>
+                    <option value="Fraud">F	raud</option>
+                </select>
+				<span id="err_category" class="error-text"></span>
+
+            </div>
+
+            <div class="col-md-6">
+                <input type="text" th:field="*{subject}" class="form-control" placeholder="Subject">
+				<span id="err_subject" class="error-text"></span>
+
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <textarea th:field="*{remarks}" rows="3" class="form-control" placeholder="Remarks(Optional)"></textarea>
+        </div>
+
+        <div class="text-center">
+            <button class="btn btn-primary btn-lg">Submit</button>
+        </div>
+
+    </form>
+
+</div>
+</body>
+
+
+</html>

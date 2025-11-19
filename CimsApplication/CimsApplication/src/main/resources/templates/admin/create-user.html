@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create User - CIMS</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f6fa; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 10px; }
+        h1 { color: #333; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; }
+        .btn { padding: 12px 30px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .btn:hover { background: #5568d3; }
+        .error { color: red; font-size: 12px; margin-top: 5px; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: #667eea; text-decoration: none; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="/admin/users" class="back-link">← Back to Users</a>
+    <h1>Create New User</h1>
+
+    <form th:action="@{/admin/users/create}" th:object="${userDTO}" method="post">
+        <div class="form-group">
+            <label>Username <span style="color:red;">*</span></label>
+            <input type="text" th:field="*{username}" required>
+            <span class="error" th:errors="*{username}"></span>
+        </div>
+
+        <div class="form-group">
+            <label>Password <span style="color:red;">*</span></label>
+            <input type="password" th:field="*{password}" required>
+            <span class="error" th:errors="*{password}"></span>
+        </div>
+
+        <div class="form-group">
+            <label>Full Name <span style="color:red;">*</span></label>
+            <input type="text" th:field="*{fullName}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Email <span style="color:red;">*</span></label>
+            <input type="email" th:field="*{email}" required>
+            <span class="error" th:errors="*{email}"></span>
+        </div>
+
+        <div class="form-group">
+            <label>Mobile Number</label>
+            <input type="text" th:field="*{mobileNumber}" maxlength="10">
+        </div>
+
+        <div class="form-group">
+            <label>Role <span style="color:red;">*</span></label>
+            <select th:field="*{role}" required>
+                <option value="">Select Role</option>
+                <option th:each="role : ${roles}" th:value="${role}" th:text="${role}"></option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Assigned Section</label>
+            <select th:field="*{assignedSection}">
+                <option value="">None</option>
+                <option th:each="section : ${sections}" th:value="${section}" th:text="${section}"></option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Table No (1-18)</label>
+            <input type="number" th:field="*{tableNo}" min="1" max="18">
+        </div>
+
+        <button type="submit" class="btn">Create User</button>
+    </form>
+</div>
+</body>
+</html>

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Correspondence History - CIMS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f6fa;
+        }
+
+        /* ========== HEADER STYLES ========== */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+        }
+
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-info span {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .btn-logout {
+            padding: 8px 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 5px;
+            font-size: 14px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* ========== CONTAINER & SIDEBAR ========== */
+        .container {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        .sidebar {
+            width: 250px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            padding: 15px 30px;
+            color: #333;
+            text-decoration: none;
+            display: block;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: #f5f6fa;
+            border-left-color: #667eea;
+            color: #667eea;
+        }
+
+        /* ========== MAIN CONTENT ========== */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            background: #f5f6fa;
+        }
+
+        .content-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .page-header h2 {
+            color: #333;
+            font-size: 28px;
+        }
+
+        /* Complaint Summary Card */
+        .complaint-summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .complaint-summary h3 {
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .summary-item {
+            background: rgba(255,255,255,0.1);
+            padding: 12px;
+            border-radius: 5px;
+        }
+
+        .summary-item label {
+            display: block;
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .summary-item .value {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        /* Timeline Styles */
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 30px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #e9ecef;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding: 0 0 30px 70px;
+            margin-bottom: 20px;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: 20px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #667eea;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .timeline-content {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .timeline-date {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .timeline-subject {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .timeline-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .timeline-meta-item {
+            font-size: 13px;
+        }
+
+        .timeline-meta-item label {
+            display: block;
+            color: #666;
+            font-size: 11px;
+            margin-bottom: 3px;
+            text-transform: uppercase;
+        }
+
+        .timeline-meta-item .value {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-from-complainant {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .badge-from-against {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .action-buttons {
+            text-align: center;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ========== HEADER ========== -->
+<div class="header">
+    <div>
+        <h1>CIMS Portal - Lokayukta Maharashtra</h1>
+        <p style="font-size: 12px; opacity: 0.9;">Complaint Information Management System</p>
+    </div>
+    <div class="header-info">
+        <div class="user-info">
+            <div sec:authentication="name">Username</div>
+            <span sec:authentication="authorities">Role</span>
+        </div>
+        <form th:action="@{/logout}" method="post" style="display: inline;">
+            <button type="submit" class="btn-logout">Logout</button>
+        </form>
+    </div>
+</div>
+
+<div class="container">
+    <!-- ========== SIDEBAR ========== -->
+    <nav class="sidebar">
+        <a href="/dashboard" class="nav-item">Dashboard</a>
+        <a href="/complaints/fresh" class="nav-item">Fresh Complaint Entry</a>
+        <a href="/tapal/search" class="nav-item">Tapal / Institution Search</a>
+        <a href="/complaints/list" class="nav-item">View All Complaints</a>
+        <a href="/tapal/list" class="nav-item active">View All Tapals</a>
+        <a href="/complaints/search" class="nav-item">Search Complaints</a>
+        <a href="/admin/users" class="nav-item" sec:authorize="hasRole('SYSTEM_ADMIN')">Manage Users</a>
+    </nav>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <main class="main-content">
+        <div class="content-wrapper">
+            <div class="page-header">
+                <h2>📨 Correspondence History</h2>
+            </div>
+
+            <!-- Complaint Summary -->
+            <div class="complaint-summary">
+                <h3>Complaint Details</h3>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <label>Complaint Number</label>
+                        <div class="value" th:text="${complaint.complaintNumber}"></div>
+                    </div>
+                    <div class="summary-item">
+                        <label>Year</label>
+                        <div class="value" th:text="${complaint.complaintYear}"></div>
+                    </div>
+                    <div class="summary-item">
+                        <label>Section</label>
+                        <div class="value" th:text="${complaint.section}"></div>
+                    </div>
+                    <div class="summary-item">
+                        <label>Status</label>
+                        <div class="value" th:text="${complaint.status}"></div>
+                    </div>
+                    <div class="summary-item">
+                        <label>Complainant</label>
+                        <div class="value" th:text="${complaint.complainantFullName}"></div>
+                    </div>
+                    <div class="summary-item">
+                        <label>Against Party</label>
+                        <div class="value" th:text="${complaint.againstPartyFullName}"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline -->
+            <h3 style="margin-bottom: 25px; color: #333;">📝 Correspondence Timeline</h3>
+
+            <div th:if="${!tapalHistory.empty}" class="timeline">
+                <div class="timeline-item" th:each="tapal : ${tapalHistory}">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">
+                            📅 <span th:text="${#temporals.format(tapal.letterReceivedDate, 'dd MMMM yyyy')}"></span>
+                        </div>
+                        <div class="timeline-subject" th:text="${tapal.subjectLine}"></div>
+
+                        <div class="timeline-meta">
+                            <div class="timeline-meta-item">
+                                <label>Letter From</label>
+                                <div class="value">
+                                    <span th:if="${tapal.letterReceivedFrom?.name() == 'COMPLAINANT'}"
+                                          class="badge badge-from-complainant">
+                                        Complainant
+                                    </span>
+                                    <span th:if="${tapal.letterReceivedFrom?.name() == 'AGAINST_PARTY'}"
+                                          class="badge badge-from-against">
+                                        Against Party
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="timeline-meta-item">
+                                <label>Related To</label>
+                                <div class="value" th:text="${tapal.letterRelatedTo}"></div>
+                            </div>
+
+                            <div class="timeline-meta-item">
+                                <label>Recorded By</label>
+                                <div class="value" th:text="${tapal.createdBy?.username ?: 'System'}"></div>
+                            </div>
+
+                            <div class="timeline-meta-item">
+                                <label>Recorded On</label>
+                                <div class="value" th:text="${#temporals.format(tapal.createdAt, 'dd-MMM-yyyy HH:mm')}"></div>
+                            </div>
+                        </div>
+
+                        <div th:if="${tapal.remarks}" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #dee2e6;">
+                            <label style="font-size: 11px; color: #666; text-transform: uppercase;">Remarks</label>
+                            <div style="color: #555; font-size: 14px; margin-top: 5px;" th:text="${tapal.remarks}"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${tapalHistory.empty}" class="empty-state">
+                <div style="font-size: 64px; margin-bottom: 20px;">🔍</div>
+                <h3>No Correspondence Records</h3>
+                <p>No tapal entries have been recorded for this complaint yet.</p>
+            </div>
+
+            <div class="action-buttons">
+                <a th:href="@{/complaints/view/{id}(id=${complaint.id})}" class="btn">
+                    📋 View Full Complaint Details
+                </a>
+                <a href="/tapal/search" class="btn btn-success">
+                    ➕ Add New Correspondence
+                </a>
+            </div>
+        </div>
+    </main>
+</div>
+
+</body>
+</html>

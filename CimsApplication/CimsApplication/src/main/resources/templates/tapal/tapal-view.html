@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Tapal Entry - CIMS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f6fa;
+        }
+
+        /* ========== HEADER STYLES ========== */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+        }
+
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-info span {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .btn-logout {
+            padding: 8px 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 5px;
+            font-size: 14px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* ========== CONTAINER & SIDEBAR ========== */
+        .container {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        .sidebar {
+            width: 250px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            padding: 15px 30px;
+            color: #333;
+            text-decoration: none;
+            display: block;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: #f5f6fa;
+            border-left-color: #667eea;
+            color: #667eea;
+        }
+
+        /* ========== MAIN CONTENT ========== */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            background: #f5f6fa;
+        }
+
+        .content-wrapper {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .page-header h2 {
+            color: #333;
+            font-size: 28px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+
+        .section h3 {
+            color: #667eea;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .detail-row {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            margin-bottom: 12px;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .detail-value {
+            color: #333;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-existing {
+            background: #e7f3ff;
+            color: #1976d2;
+        }
+
+        .badge-new {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .action-buttons {
+            text-align: center;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ========== HEADER ========== -->
+<div class="header">
+    <div>
+        <h1>CIMS Portal - Lokayukta Maharashtra</h1>
+        <p style="font-size: 12px; opacity: 0.9;">Complaint Information Management System</p>
+    </div>
+    <div class="header-info">
+        <div class="user-info">
+            <div sec:authentication="name">Username</div>
+            <span sec:authentication="authorities">Role</span>
+        </div>
+        <form th:action="@{/logout}" method="post" style="display: inline;">
+            <button type="submit" class="btn-logout">Logout</button>
+        </form>
+    </div>
+</div>
+
+<div class="container">
+    <!-- ========== SIDEBAR ========== -->
+    <nav class="sidebar">
+        <a href="/dashboard" class="nav-item">Dashboard</a>
+        <a href="/complaints/fresh" class="nav-item">Fresh Complaint Entry</a>
+        <a href="/tapal/search" class="nav-item">Tapal / Institution Search</a>
+        <a href="/complaints/list" class="nav-item">View All Complaints</a>
+        <a href="/tapal/list" class="nav-item active">View All Tapals</a>
+        <a href="/complaints/search" class="nav-item">Search Complaints</a>
+        <a href="/admin/users" class="nav-item" sec:authorize="hasRole('SYSTEM_ADMIN')">Manage Users</a>
+    </nav>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <main class="main-content">
+        <div class="content-wrapper">
+            <div class="page-header">
+                <h2>📨 Tapal Entry Details</h2>
+            </div>
+
+            <!-- Basic Information -->
+            <div class="section">
+                <h3>📌 Basic Information</h3>
+                <div class="detail-row">
+                    <div class="detail-label">Complaint Number:</div>
+                    <div class="detail-value"><strong th:text="${tapalEntry.complaintNumber}"></strong></div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Entry Type:</div>
+                    <div class="detail-value">
+                        <span th:if="${tapalEntry.tapalType?.name() == 'EXISTING_COMPLAINT'}" class="badge badge-existing">
+                            Tapal for Existing Complaint
+                        </span>
+                        <span th:if="${tapalEntry.tapalType?.name() == 'NEW_ENTRY'}" class="badge badge-new">
+                            New Entry
+                        </span>
+                    </div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Section:</div>
+                    <div class="detail-value" th:text="${tapalEntry.section}"></div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Year:</div>
+                    <div class="detail-value" th:text="${tapalEntry.year}"></div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Letter Received Date:</div>
+                    <div class="detail-value" th:text="${#temporals.format(tapalEntry.letterReceivedDate, 'dd-MMM-yyyy')}"></div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Subject:</div>
+                    <div class="detail-value" th:text="${tapalEntry.subjectLine}"></div>
+                </div>
+            </div>
+
+            <!-- For Existing Complaint Tapals -->
+            <div th:if="${tapalEntry.tapalType?.name() == 'EXISTING_COMPLAINT'}" class="section">
+                <h3>📝 Letter Details</h3>
+                <div class="detail-row">
+                    <div class="detail-label">Letter Received From:</div>
+                    <div class="detail-value" th:text="${tapalEntry.letterReceivedFrom}"></div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Letter Related To:</div>
+                    <div class="detail-value" th:text="${tapalEntry.letterRelatedTo}"></div>
+                </div>
+                <div class="detail-row" th:if="${tapalEntry.remarks}">
+                    <div class="detail-label">Remarks:</div>
+                    <div class="detail-value" th:text="${tapalEntry.remarks}"></div>
+                </div>
+
+                <!-- Linked Complaint Details -->
+                <div th:if="${tapalEntry.freshComplaint}" style="margin-top: 20px;">
+                    <h4 style="color: #667eea; margin-bottom: 10px;">Linked Complaint Details</h4>
+                    <div class="detail-row">
+                        <div class="detail-label">Complainant:</div>
+                        <div class="detail-value" th:text="${tapalEntry.freshComplaint.complainantFullName}"></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Against Party:</div>
+                        <div class="detail-value" th:text="${tapalEntry.freshComplaint.againstPartyFullName}"></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Original Subject:</div>
+                        <div class="detail-value" th:text="${tapalEntry.freshComplaint.subject}"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- For New Entries -->
+            <div th:if="${tapalEntry.tapalType?.name() == 'NEW_ENTRY'}" class="section">
+                <h3>📄 Entry Details</h3>
+                <div class="detail-row">
+                    <div class="detail-label">Inward Number:</div>
+                    <div class="detail-value" th:text="${tapalEntry.inwardNumber}"></div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Receiver Name:</div>
+                    <div class="detail-value" th:text="${tapalEntry.receiverName}"></div>
+                </div>
+                <div class="detail-row" th:if="${tapalEntry.remarks}">
+                    <div class="detail-label">Remarks:</div>
+                    <div class="detail-value" th:text="${tapalEntry.remarks}"></div>
+                </div>
+            </div>
+
+            <!-- Metadata -->
+            <div class="section">
+                <h3>ℹ️ System Information</h3>
+                <div class="detail-row">
+                    <div class="detail-label">Created By:</div>
+                    <div class="detail-value" th:text="${tapalEntry.createdBy?.username ?: 'N/A'}"></div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Created At:</div>
+                    <div class="detail-value" th:text="${#temporals.format(tapalEntry.createdAt, 'dd-MMM-yyyy HH:mm:ss')}"></div>
+                </div>
+            </div>
+
+            <!-- Related Tapals (if linked to a complaint) -->
+            <div th:if="${relatedTapals != null and !relatedTapals.empty}" class="section">
+                <h3>📨 All Correspondence for this Complaint</h3>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Subject</th>
+                        <th>From</th>
+                        <th>Related To</th>
+                        <th>Created By</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="tapal : ${relatedTapals}">
+                        <td th:text="${#temporals.format(tapal.letterReceivedDate, 'dd-MMM-yyyy')}"></td>
+                        <td th:text="${#strings.abbreviate(tapal.subjectLine, 60)}"></td>
+                        <td th:text="${tapal.letterReceivedFrom ?: '-'}"></td>
+                        <td th:text="${tapal.letterRelatedTo ?: '-'}"></td>
+                        <td th:text="${tapal.createdBy?.username}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="action-buttons">
+                <a href="/tapal/list" class="btn">← Back to List</a>
+                <a href="/tapal/search" class="btn btn-success">➕ Add Another Entry</a>
+            </div>
+        </div>
+    </main>
+</div>
+
+</body>
+</html>
